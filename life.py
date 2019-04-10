@@ -19,14 +19,17 @@ def main(stdscr):
     MID_COL = round(COLS / 2)
 
     # Character to represent alive cell
-    LIVE_CHAR = 'X'
+    LIVE_CHAR = '█'
+
+    # Initialize generation counter
+    generation_count = 0
 
     # Create list to represent cells and randomly create initial state
     # Format is [line][column]. 0 is dead, 1 is alive
     current_cells = [[0] * COLS for x in range(LINES)]
     for i in range(LINES):
         for j in range(COLS):
-            if random.random() > 0.8:
+            if random.random() > 0.9:
                 current_cells[i][j] = 1
 
     # Determine number of neighbors for a cell at line, col
@@ -68,8 +71,13 @@ def main(stdscr):
                     stdscr.delch(i, j)
                     if neighbors == 3:
                         next_cells[i][j] = 1
+
+        # Increment generation counter, display it, and refresh screen
+        generation_count += 1
+        stdscr.addstr(LINES, 0, "Generation: " + str(generation_count))
         stdscr.refresh()
 
+        # Save next cells as current for next loop
         current_cells = next_cells
 
         # Wait
