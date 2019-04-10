@@ -13,7 +13,7 @@ def main(stdscr):
     curses.curs_set(False)
 
     # Useful constants
-    LINES = curses.LINES - 1
+    LINES = curses.LINES - 2
     COLS = curses.COLS
     MID_LINE = round(LINES / 2)
     MID_COL = round(COLS / 2)
@@ -40,10 +40,11 @@ def main(stdscr):
                 if line_mod == 0 and col_mod == 0:
                     pass # Do not count given cell
                 else:
-                    try:
-                        cell_value = current_cells[line + line_mod][col + col_mod]
-                    except:
-                        cell_value = 0
+                    # Mod keeps index from getting out of bounds
+                    # Also connects left/right and up/down (I think)
+                    current_line = (line + line_mod) % LINES
+                    current_col = (col + col_mod) % COLS
+                    cell_value = current_cells[current_line][current_col]
                     if cell_value == 1:
                         neighbors += 1
         return neighbors
@@ -74,7 +75,7 @@ def main(stdscr):
 
         # Increment generation counter, display it, and refresh screen
         generation_count += 1
-        stdscr.addstr(LINES, 0, "Generation: " + str(generation_count))
+        stdscr.addstr(LINES + 1, 0, "Generation: " + str(generation_count))
         stdscr.refresh()
 
         # Save next cells as current for next loop
