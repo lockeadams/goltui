@@ -29,9 +29,15 @@ def main(stdscr):
     debug_mode = False
     manual_mode = False
     loop_time = 0.1
+    color_pair = 4
 
     # Initialize color pairs
-    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE)
+    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
+    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_GREEN)
+    curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_YELLOW)
+    curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_BLUE)
+    curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_MAGENTA)
+    curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_CYAN)
 
     # Create list to represent cells and randomly create initial state
     # Format is [line][column]. 0 is dead, 1 is alive
@@ -85,7 +91,8 @@ def main(stdscr):
                     if debug_mode:
                         stdscr.addstr(i, j, str(neighbors), curses.A_BOLD)
                     else:
-                        stdscr.addstr(i, j, LIVE_CHAR, curses.color_pair(1) | curses.A_BOLD)
+                        stdscr.addstr(i, j, LIVE_CHAR, curses.color_pair(color_pair) 
+                                | curses.A_BOLD)
 
                     # If neighbor count is less than 2 or greater than 3,
                     # kill it in next generation
@@ -102,7 +109,7 @@ def main(stdscr):
                     if debug_mode:
                         stdscr.addstr(i, j, str(neighbors), curses.A_DIM)
                     else:
-                        stdscr.addstr(i, j, ' ', curses.color_pair(1))
+                        stdscr.addstr(i, j, ' ', curses.color_pair(color_pair))
 
                     # If cell has 3 neighbors, bring it to
                     # life in next generation
@@ -121,6 +128,11 @@ def main(stdscr):
         current_cells = next_cells
 
         # Poll for keypress while loop runs
+        # d: toggle debug mode
+        # m: toggle manual mode
+        # k: speed up loop
+        # j: slow down loop
+        # c: cycle through colors
         try:
             key = stdscr.getkey()
             if key == 'd':
@@ -128,14 +140,16 @@ def main(stdscr):
             if key == 'm':
                 manual_mode = not manual_mode
             if key == 'k':
-                loop_time -= 0.05
+                loop_time -= 0.03
             if key == 'j':
-                loop_time += 0.05
+                loop_time += 0.03
+            if key == 'c':
+                color_pair = (color_pair + 1) % 7
         except:
-            if loop_time >= 0:
+            if loop_time >= 0.01:
                 time.sleep(loop_time)
             else:
-                loop_time = 0
+                loop_time = 0.01
 
         # If in manual mode, make keypress blocking
         # Causes generation to not advance until key pressed
