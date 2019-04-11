@@ -9,6 +9,10 @@ import random
 
 def main(stdscr):
 
+    ##################################################
+    #                 INITIALIZATION                 #
+    ##################################################
+
     # Hide cursor
     curses.curs_set(False)
 
@@ -39,16 +43,22 @@ def main(stdscr):
     curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_MAGENTA)
     curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_CYAN)
 
+    ##################################################
+    #                DEFINE FUNCTIONS                #
+    ##################################################
+
     # Create list to represent cells and randomly create initial state
     # Format is [line][column]. 0 is dead, 1 is alive
-    current_cells = [[0] * COLS for x in range(LINES)]
-    for i in range(LINES):
-        for j in range(COLS):
-            if random.random() > 0.9:
-                current_cells[i][j] = 1
+    def init_cells():
+        random_cells = [[0] * COLS for x in range(LINES)]
+        for i in range(LINES):
+            for j in range(COLS):
+                if random.random() > 0.7:
+                    random_cells[i][j] = 1
+        return random_cells
 
-    # Determine number of neighbors for a cell at line, col
-    def count_neighbors(line, col):
+    # Determine number of neighbors for a cell at line, col in a given list
+    def count_neighbors(line, col, cell_list):
         neighbors = 0
         for line_mod in [-1, 0, 1]:
             for col_mod in [-1, 0, 1]:
@@ -59,12 +69,18 @@ def main(stdscr):
                     # Also connects left/right and up/down (I think)
                     current_line = (line + line_mod) % LINES
                     current_col = (col + col_mod) % COLS
-                    cell_value = current_cells[current_line][current_col]
+                    cell_value = cell_list[current_line][current_col]
                     if cell_value == 1:
                         neighbors += 1
         return neighbors
 
-    # Main loop
+    ##################################################
+    #                    MAIN LOOP                   #
+    ##################################################
+
+    # Get random cells
+    current_cells = init_cells()
+
     while True:
 
         # Create list for next cells (initialized to all dead)
@@ -78,7 +94,7 @@ def main(stdscr):
             for j in range(COLS):
 
                 # Get neighbor count for each cell
-                neighbors = count_neighbors(i, j)
+                neighbors = count_neighbors(i, j, current_cells)
 
                 # Cell is currently alive
                 if current_cells[i][j] == 1:
@@ -133,6 +149,7 @@ def main(stdscr):
         # k: speed up loop
         # j: slow down loop
         # c: cycle through colors
+        # r: restart (generate new random cells)
         try:
             key = stdscr.getkey()
             if key == 'd':
@@ -145,6 +162,9 @@ def main(stdscr):
                 loop_time += 0.03
             if key == 'c':
                 color_pair = (color_pair + 1) % 7
+            if key == 'r':
+                current_cells = init_cells()
+                generation_count = 0
         except:
             if loop_time >= 0.01:
                 time.sleep(loop_time)
