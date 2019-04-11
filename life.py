@@ -16,7 +16,7 @@ def main(stdscr):
     stdscr.nodelay(True)
 
     # Useful constants
-    LINES = curses.LINES - 2
+    LINES = curses.LINES - 1
     COLS = curses.COLS
     MID_LINE = round(LINES / 2)
     MID_COL = round(COLS / 2)
@@ -28,6 +28,7 @@ def main(stdscr):
     generation_count = 0
     debug_mode = False
     manual_mode = False
+    loop_time = 0.1
 
     # Initialize color pairs
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE)
@@ -116,10 +117,6 @@ def main(stdscr):
                 + " Population: " + str(population_count), curses.A_BOLD)
         stdscr.refresh()
 
-        # Display controls
-        stdscr.addstr(LINES + 1, 0, "Press d to toggle debug mode."
-                + " Press m to toggle manual mode.")
-
         # Save next cells as current for next loop
         current_cells = next_cells
 
@@ -130,8 +127,15 @@ def main(stdscr):
                 debug_mode = not debug_mode
             if key == 'm':
                 manual_mode = not manual_mode
+            if key == 'k':
+                loop_time -= 0.05
+            if key == 'j':
+                loop_time += 0.05
         except:
-            time.sleep(0.1)
+            if loop_time >= 0:
+                time.sleep(loop_time)
+            else:
+                loop_time = 0
 
         # If in manual mode, make keypress blocking
         # Causes generation to not advance until key pressed
