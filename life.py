@@ -19,10 +19,14 @@ def main(stdscr):
     MID_COL = round(COLS / 2)
 
     # Character to represent alive cell
-    LIVE_CHAR = '█'
+    LIVE_CHAR = '#'
 
-    # Initialize generation counter
+    # Initialize vars
     generation_count = 0
+    debug_mode = False
+
+    # Initialize color pairs
+    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE)
 
     # Create list to represent cells and randomly create initial state
     # Format is [line][column]. 0 is dead, 1 is alive
@@ -55,33 +59,65 @@ def main(stdscr):
         # Create list for next cells (initialized to all dead)
         next_cells = [[0] * COLS for x in range(LINES)]
 
-        # Iterate through current list. If element is 1, paint character at position.
-        # Also perform game logic: alive cell with 2 or 3 neighbors lives, dead cell
-        # with 3 neighbors comes to life. Next generation copied to next_cells so as
-        # to not mutate current_cells during operation.
+        # Initialize population count
+        population_count = 0
+
+        # Iterate through current list
         for i in range(LINES):
             for j in range(COLS):
+
+                # Get neighbor count for each cell
                 neighbors = count_neighbors(i, j)
+
+                # Cell is currently alive
                 if current_cells[i][j] == 1:
-                    stdscr.addstr(i, j, LIVE_CHAR, curses.A_BOLD)
+
+                    # Increment population size
+                    population_count += 1
+
+                    # If in debug mode, show neighbor count (bold)
+                    # Otherwise, show LIVE_CHAR
+                    if debug_mode:
+                        stdscr.addstr(i, j, str(neighbors), curses.A_BOLD)
+                    else:
+                        stdscr.addstr(i, j, LIVE_CHAR, curses.color_pair(1) | curses.A_BOLD)
+
+                    # If neighbor count is less than 2 or greater than 3,
+                    # kill it in next generation
                     if not(neighbors == 2 or neighbors == 3):
                         next_cells[i][j] = 0
                     else:
                         next_cells[i][j] = 1
+
+                # Cell is currently dead
                 else:
-                    stdscr.delch(i, j)
+
+                    # If in debug mode, show neighbor count (dim)
+                    # Otherwise, replace with space (delete)
+                    if debug_mode:
+                        stdscr.addstr(i, j, str(neighbors), curses.A_DIM)
+                    else:
+                        stdscr.addstr(i, j, ' ', curses.color_pair(1))
+
+                    # If cell has 3 neighbors, bring it to
+                    # life in next generation
                     if neighbors == 3:
                         next_cells[i][j] = 1
 
-        # Increment generation counter, display it, and refresh screen
+        # Increment generation count
         generation_count += 1
-        stdscr.addstr(LINES + 1, 0, "Generation: " + str(generation_count))
+
+        # Display metrics and refresh screen
+        stdscr.addstr(LINES + 1, 0, "Generation: " + str(generation_count)
+                + " Population: " + str(population_count))
         stdscr.refresh()
 
         # Save next cells as current for next loop
         current_cells = next_cells
 
-        # Wait
-        time.sleep(0.1)
+        # Wait until keypress. If key = 'd', toggle debug mode
+        key = stdscr.getkey()
+        if key == 'd':
+            debug_mode = not debug_mode
 
 wrapper(main)
