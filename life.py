@@ -12,6 +12,9 @@ def main(stdscr):
     # Hide cursor
     curses.curs_set(False)
 
+    # Don't wait for keypresses
+    stdscr.nodelay(True)
+
     # Useful constants
     LINES = curses.LINES - 2
     COLS = curses.COLS
@@ -24,6 +27,7 @@ def main(stdscr):
     # Initialize vars
     generation_count = 0
     debug_mode = False
+    manual_mode = False
 
     # Initialize color pairs
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE)
@@ -108,16 +112,32 @@ def main(stdscr):
         generation_count += 1
 
         # Display metrics and refresh screen
-        stdscr.addstr(LINES + 1, 0, "Generation: " + str(generation_count)
-                + " Population: " + str(population_count))
+        stdscr.addstr(LINES, 0, "Generation: " + str(generation_count)
+                + " Population: " + str(population_count), curses.A_BOLD)
         stdscr.refresh()
+
+        # Display controls
+        stdscr.addstr(LINES + 1, 0, "Press d to toggle debug mode."
+                + " Press m to toggle manual mode.")
 
         # Save next cells as current for next loop
         current_cells = next_cells
 
-        # Wait until keypress. If key = 'd', toggle debug mode
-        key = stdscr.getkey()
-        if key == 'd':
-            debug_mode = not debug_mode
+        # Poll for keypress while loop runs
+        try:
+            key = stdscr.getkey()
+            if key == 'd':
+                debug_mode = not debug_mode
+            if key == 'm':
+                manual_mode = not manual_mode
+        except:
+            time.sleep(0.1)
+
+        # If in manual mode, make keypress blocking
+        # Causes generation to not advance until key pressed
+        if manual_mode:
+            stdscr.nodelay(False)
+        else:
+            stdscr.nodelay(True)
 
 wrapper(main)
