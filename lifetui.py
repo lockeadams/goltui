@@ -70,7 +70,7 @@ def main(stdscr):
             if key == 'c':
                 color = (color + 1) % 7
             if key == 'r':
-                gameoflife.generate_random()
+                cells.generate_random()
             if key == 'q':
                 break
         except:

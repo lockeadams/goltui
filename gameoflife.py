@@ -19,6 +19,7 @@ class CellList(UserList):
 
     def generate_random(self, prob_alive=0.3):
         """ Randomly assigns each cell in list to dead or alive. """
+        self.generation = 0
         for i in range(self.lines):
             for j in range(self.cols):
                 if random.random() < prob_alive:
