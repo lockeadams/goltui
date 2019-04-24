@@ -1,61 +1,62 @@
 """ CONWAYS GAME OF LIFE """
 
 import random
+import collections
+from collections import UserList
 
-state = {'alive' : True, 'dead' : False}
+class CellList(UserList):
+    """ List object representing cells for Game of Life. """
 
-def init_board(_lines, _cols):
-    """ Creates cell list of given dimensions and initializes them to all dead. """
-    global lines, cols, cells, generation
-    lines = _lines
-    cols = _cols
-    cells = [[state['dead']] * cols for x in range(lines)]
-    generation = 0
+    cell_state = {'alive' : True, 'dead' : False}
 
-def generate_random(prob_alive=0.3):
-    """ Randomly assigns each cell in list to dead or alive. """
-    global lines, cols, cells, generation
-    generation = 0
-    for i in range(lines):
-        for j in range(cols):
-            if random.random() < prob_alive:
-                cells[i][j] = state['alive']
+    def __init__(self, lines, cols):
+        """ Creates cell list of given dimensions and initializes them to all dead. """
+        self.lines = lines
+        self.cols = cols
+        self.generation = 0
+        initial_list = [[self.cell_state['dead']] * cols for x in range(lines)]
+        super().__init__(initial_list)
 
-def get_neighbors(line, col):
-    """ Returns number of neighbors for a given cell at line, col. """
-    global lines, cols, cells
-    neighbors = 0
-    for line_shift in [-1, 0, 1]:
-        for col_shift in [-1, 0, 1]:
-            if line_shift == 0 and col_shift == 0:
-                continue # Do not count given cell
-            # % connects left/right and up/down
-            i = (line + line_shift) % lines
-            j = (col + col_shift) % cols
-            if cells[i][j] == state['alive']:
-                neighbors += 1
-    return neighbors
+    def generate_random(self, prob_alive=0.3):
+        """ Randomly assigns each cell in list to dead or alive. """
+        for i in range(self.lines):
+            for j in range(self.cols):
+                if random.random() < prob_alive:
+                    self[i][j] = self.cell_state['alive']
 
-def advance_generation():
-    """ Advances cell list to next generation based on Conway's rules. """
-    global lines, cols, cells, generation
-    generation += 1
-    next_cells = [[state['dead']] * cols for x in range(lines)]
-    for i in range(lines):
-        for j in range(cols):
-            neighbors = get_neighbors(i, j)
-            if cells[i][j] == state['alive']:
-                if neighbors == 2 or neighbors == 3:
-                    next_cells[i][j] = state['alive']
-            elif cells[i][j] == state['dead']:
-                if neighbors == 3:
-                    next_cells[i][j] = state['alive']
-    cells = next_cells
+    def get_neighbors(self, line, col):
+        """ Returns number of neighbors for a given cell at line, col. """
+        neighbors = 0
+        for line_shift in [-1, 0, 1]:
+            for col_shift in [-1, 0, 1]:
+                if line_shift == 0 and col_shift == 0:
+                    continue # Do not count given cell
+                # % connects left/right and up/down
+                i = (line + line_shift) % self.lines
+                j = (col + col_shift) % self.cols
+                if self[i][j] == self.cell_state['alive']:
+                    neighbors += 1
+        return neighbors
 
-def get_population():
-    """ Returns number of alive cells. """
-    global cells
-    population = 0
-    for i in cells:
-        population += i.count(state['alive'])
-    return population
+    def advance_generation(self):
+        """ Advances cell list to next generation based on Conway's rules. """
+        self.generation += 1
+        next_cells = [[self.cell_state['dead']] * self.cols for x in range(self.lines)]
+        for i in range(self.lines):
+            for j in range(self.cols):
+                neighbors = self.get_neighbors(i, j)
+                if self[i][j] == self.cell_state['alive']:
+                    if neighbors == 2 or neighbors == 3:
+                        next_cells[i][j] = self.cell_state['alive']
+                elif self[i][j] == self.cell_state['dead']:
+                    if neighbors == 3:
+                        next_cells[i][j] = self.cell_state['alive']
+        super().__init__(next_cells)
+
+    def get_population(self):
+        """ Returns number of alive cells. """
+        population = 0
+        for i in self:
+            population += i.count(self.cell_state['alive'])
+        return population
+

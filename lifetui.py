@@ -21,8 +21,8 @@ def main(stdscr):
     # Game initialization
     GAME_LINES = curses.LINES - 1
     GAME_COLS = curses.COLS
-    gameoflife.init_board(GAME_LINES, GAME_COLS)
-    gameoflife.generate_random()
+    cells = gameoflife.CellList(GAME_LINES, GAME_COLS)
+    cells.generate_random()
     manual_mode = False
     debug_mode = False
     loop_time = 0.1
@@ -35,26 +35,26 @@ def main(stdscr):
         for i in range(GAME_LINES):
             for j in range(GAME_COLS):
                 if not debug_mode:
-                    if gameoflife.cells[i][j] == gameoflife.state['alive']:
+                    if cells[i][j] == cells.cell_state['alive']:
                         stdscr.addstr(i, j, '#', curses.A_BOLD | curses.color_pair(color))
-                    elif gameoflife.cells[i][j] == gameoflife.state['dead']:
+                    elif cells[i][j] == cells.cell_state['dead']:
                         stdscr.addstr(i, j, ' ', curses.A_BOLD | curses.color_pair(color))
                 else:
-                    neighbors = str(gameoflife.get_neighbors(i, j))
-                    if gameoflife.cells[i][j] == gameoflife.state['alive']:
+                    neighbors = str(cells.get_neighbors(i, j))
+                    if cells[i][j] == cells.cell_state['alive']:
                         stdscr.addstr(i, j, neighbors, curses.A_BOLD)
-                    elif gameoflife.cells[i][j] == gameoflife.state['dead']:
+                    elif cells[i][j] == cells.cell_state['dead']:
                         stdscr.addstr(i, j, neighbors, curses.A_DIM)
 
         # Display metrics
-        generation = str(gameoflife.generation)
-        population = str(gameoflife.get_population())
+        generation = str(cells.generation)
+        population = str(cells.get_population())
         stdscr.addstr(GAME_LINES, 0, 'Generation: ' + generation
                 + ' Population: ' + population + ' ', curses.A_BOLD)
         stdscr.refresh()
 
         # Advance generation
-        gameoflife.advance_generation()
+        cells.advance_generation()
 
         # Handle keypresses
         try:
@@ -86,6 +86,6 @@ def main(stdscr):
         else:
             stdscr.nodelay(True)
 
-
 if __name__ == '__main__':
     curses.wrapper(main)
+
