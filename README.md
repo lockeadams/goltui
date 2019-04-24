@@ -7,6 +7,7 @@ Module containing the operations necessary to play Conway's Game of Life. Contai
 Script using the gameoflife module to print the game to a terminal screen using the curses library. Initial generation is random.
 
 Controls:
+
 | Keypress | Description |
 | :------: | ----------- |
 | d        | Toggles debug mode. Prints cells as their neighbor count, with live cells bold and dead dim. |
