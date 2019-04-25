@@ -17,3 +17,6 @@ Controls:
 | c        | Cycles background color. |
 | r        | Restarts game by randomizing generation. |
 | q        | Exit game cleanly. |
+
+## installation
+To use the script, clone this repo in a directory of your choice and execute `./lifetui.py`. Windows users will additionally need to install `windows-curses`: `python -m pip install windows-curses`
