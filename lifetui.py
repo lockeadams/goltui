@@ -19,9 +19,10 @@ def main(stdscr):
     curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_CYAN)
 
     # Game initialization
-    GAME_LINES = curses.LINES - 1
-    GAME_COLS = curses.COLS
-    cells = gameoflife.CellList(GAME_LINES, GAME_COLS)
+    INIT_LINES = curses.LINES - 1
+    INIT_COLS = curses.COLS
+    cells = gameoflife.CellList(INIT_LINES, INIT_COLS)
+    last_lines, last_cols = INIT_LINES, INIT_COLS
     cells.generate_random()
     manual_mode = False
     debug_mode = False
@@ -31,9 +32,16 @@ def main(stdscr):
     # Game loop
     while True:
 
+        # Handle changing screen size
+        lines, cols = stdscr.getmaxyx()[0] - 1, stdscr.getmaxyx()[1]
+        if lines != last_lines or cols != last_cols:
+            cells = gameoflife.CellList(lines, cols)
+            stdscr.clear()
+            cells.generate_random()
+
         # Display cells
-        for i in range(GAME_LINES):
-            for j in range(GAME_COLS):
+        for i in range(lines):
+            for j in range(cols):
                 if not debug_mode:
                     if cells[i][j] == cells.cell_state['alive']:
                         stdscr.addstr(i, j, '#', curses.A_BOLD | curses.color_pair(color))
@@ -49,7 +57,7 @@ def main(stdscr):
         # Display metrics
         generation = str(cells.generation)
         population = str(cells.get_population())
-        stdscr.addstr(GAME_LINES, 0, 'Generation: ' + generation
+        stdscr.addstr(lines, 0, 'Generation: ' + generation
                 + ' Population: ' + population + ' ', curses.A_BOLD)
         stdscr.refresh()
 
@@ -85,6 +93,9 @@ def main(stdscr):
             stdscr.nodelay(False)
         else:
             stdscr.nodelay(True)
+
+        # Save dimensions for next loop
+        last_lines, last_cols = lines, cols
 
 if __name__ == '__main__':
     curses.wrapper(main)
