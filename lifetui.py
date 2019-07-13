@@ -6,6 +6,7 @@ import gameoflife
 import curses
 import time
 
+
 def main(stdscr):
 
     # Curses initialization
@@ -97,6 +98,6 @@ def main(stdscr):
         # Save dimensions for next loop
         last_lines, last_cols = lines, cols
 
+
 if __name__ == '__main__':
     curses.wrapper(main)
-

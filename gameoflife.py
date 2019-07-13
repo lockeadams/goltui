@@ -1,13 +1,13 @@
 """ CONWAYS GAME OF LIFE """
 
 import random
-import collections
 from collections import UserList
+
 
 class CellList(UserList):
     """ List object representing cells for Game of Life. """
 
-    cell_state = {'alive' : True, 'dead' : False}
+    cell_state = {'alive': True, 'dead': False}
 
     def __init__(self, lines, cols):
         """ Creates cell list of given dimensions and initializes them to all dead. """
@@ -31,7 +31,7 @@ class CellList(UserList):
         for line_shift in [-1, 0, 1]:
             for col_shift in [-1, 0, 1]:
                 if line_shift == 0 and col_shift == 0:
-                    continue # Do not count given cell
+                    continue  # Do not count given cell
                 # % connects left/right and up/down
                 i = (line + line_shift) % self.lines
                 j = (col + col_shift) % self.cols
@@ -60,4 +60,3 @@ class CellList(UserList):
         for i in self:
             population += i.count(self.cell_state['alive'])
         return population
-
